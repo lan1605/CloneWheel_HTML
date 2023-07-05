@@ -9,12 +9,11 @@ var shuffle = function (o) {
 };
 
 var hashCode = function (string) {
-  // See http://www.cse.yorku.ca/~oz/hash.html
   var hash = 5381;
   for (i = 0; i < string.length; i++) {
     var char = string.charCodeAt(i);
     hash = (hash << 5) + hash + char;
-    hash = hash & hash; // Convert to 32bit integer
+    hash = hash & hash;
   }
   return hash;
 };
@@ -37,7 +36,6 @@ $(function () {
       wheel.update();
     }
 
-    // Hide the address bar (for mobile devices)!
     setTimeout(function () {
       window.scrollTo(0, 1);
     }, 0);
@@ -62,10 +60,9 @@ var wheel = {
   upTime: 5000,
 
   spin: function () {
-    // Start the wheel only if it's not already spinning
     if (wheel.timerHandle == 0) {
       wheel.spinStart = new Date().getTime();
-      wheel.maxSpeed = Math.PI / (16 + Math.random() * 10); // Randomly vary how hard the spin is
+      wheel.maxSpeed = Math.PI / (16 + Math.random() * 10);
       wheel.frames = 0;
       wheel.timerHandle = setInterval(wheel.onTimerTick, wheel.timerDelay);
     }
@@ -92,23 +89,13 @@ var wheel = {
     }
 
     wheel.angleCurrent += wheel.angleDelta;
-    while (wheel.angleCurrent >= Math.PI * 2)
-      // Keep the angle in a reasonable range
-      wheel.angleCurrent -= Math.PI * 2;
+    while (wheel.angleCurrent >= Math.PI * 2) wheel.angleCurrent -= Math.PI * 2;
 
     if (finished) {
       clearInterval(wheel.timerHandle);
       wheel.timerHandle = 0;
       wheel.angleDelta = 0;
-
-      //   $("#counter").html((wheel.frames / duration) * 1000 + " FPS");
     }
-
-    /*
-       // Display RPM
-       var rpm = (wheel.angleDelta * (1000 / wheel.timerDelay) * 60) / (Math.PI * 2);
-       $('#counter').html( Math.round(rpm) + ' RPM' );
-       */
   },
 
   init: function (optionList) {
@@ -133,9 +120,7 @@ var wheel = {
   },
 
   update: function () {
-    // Ensure we start mid way on a item
     var r = Math.floor(Math.random() * wheel.segments.length);
-    //var r = 0;
     wheel.angleCurrent = ((r + 0.5) / wheel.segments.length) * Math.PI * 2;
 
     var segments = wheel.segments;
@@ -181,19 +166,18 @@ var wheel = {
 
     ctx.stroke();
     ctx.fill();
-
-    // Which segment is being pointed to?
     var i =
       wheel.segments.length -
       Math.floor((wheel.angleCurrent / (Math.PI * 2)) * wheel.segments.length) -
       1;
 
-    // Now draw the winning name
+    // tên người chiến thắng
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#000000";
     ctx.font = "2em Arial";
-    ctx.fillText(wheel.segments[i], centerX + size + 25, centerY);
+    // ctx.fillText(wheel.segments[i], centerX + size + 25, centerY);
+    console.log(wheel.segments[i], centerX + size + 25, centerY);
   },
 
   drawSegment: function (key, lastAngle, angle) {
@@ -206,20 +190,15 @@ var wheel = {
     ctx.save();
     ctx.beginPath();
 
-    // Start in the centre
     ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, size, lastAngle, angle, false); // Draw a arc around the edge
-    ctx.lineTo(centerX, centerY); // Now draw a line back to the centre
-    // Clip anything that follows to this area
-    //ctx.clip(); // It would be best to clip, but we can double performance without it
-    ctx.closePath();
+    ctx.arc(centerX, centerY, size, lastAngle, angle, false);
+    ctx.lineTo(centerX, centerY);
 
     ctx.fillStyle = wheel.colorCache[key];
     ctx.fill();
     ctx.stroke();
 
-    // Now draw the text
-    ctx.save(); // The save ensures this works on Android devices
+    ctx.save();
     ctx.translate(centerX, centerY);
     ctx.rotate((lastAngle + angle) / 2);
 
