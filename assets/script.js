@@ -1,4 +1,8 @@
 var names = [];
+var nameInput = document.getElementById("name"),
+  canvasContent = document.querySelector(".content-wheel"),
+  labelContent = document.querySelector(".content-label");
+
 var shuffle = function (o) {
   for (
     var j, x, i = o.length;
@@ -22,20 +26,20 @@ var mod = function (a, b) {
   return ((a % b) + b) % b;
 };
 $(function () {
-  var nameInput = document.getElementById("name");
   nameInput.addEventListener("input", function () {
     var namesEntered = this.value
       .replace(/\r\n/g, "\n")
       .split("\n")
       .filter((line) => line);
-    names = namesEntered.filter((item) => item !== "");
-    if (names === []) {
+    names = namesEntered.filter((item) => item !== " ");
+    if (names === [] || names === [""]) {
     } else {
+      canvasContent.style = "display: block";
+      labelContent.style = "display: none";
       wheel.segments = names;
-      wheel.init();
-      wheel.update();
     }
-
+    wheel.init();
+    wheel.update();
     setTimeout(function () {
       window.scrollTo(0, 1);
     }, 0);
@@ -65,6 +69,7 @@ var wheel = {
       wheel.maxSpeed = Math.PI / (16 + Math.random() * 10);
       wheel.frames = 0;
       wheel.timerHandle = setInterval(wheel.onTimerTick, wheel.timerDelay);
+      wheel.closePopup();
     }
   },
 
@@ -75,7 +80,10 @@ var wheel = {
     var duration = new Date().getTime() - wheel.spinStart;
     var progress = 0;
     var finished = false;
-
+    var i =
+      wheel.segments.length -
+      Math.floor((wheel.angleCurrent / (Math.PI * 2)) * wheel.segments.length) -
+      1;
     if (duration < wheel.upTime) {
       progress = duration / wheel.upTime;
       wheel.angleDelta = wheel.maxSpeed * Math.sin((progress * Math.PI) / 2);
@@ -95,24 +103,37 @@ var wheel = {
       clearInterval(wheel.timerHandle);
       wheel.timerHandle = 0;
       wheel.angleDelta = 0;
+      console.log(
+        wheel.segments[i],
+        wheel.centerX + wheel.size + 25,
+        wheel.centerY
+      );
+      wheel.showCongratulations();
     }
   },
 
-  init: function (optionList) {
+  init: function () {
     try {
       wheel.initWheel();
       wheel.initCanvas();
       wheel.draw();
-      $.extend(wheel, optionList);
+      wheel.checkValue();
     } catch (exceptionData) {
       alert("Wheel is not loaded " + exceptionData);
     }
   },
 
+  checkValue: function () {
+    if (nameInput.value === "") {
+      canvasContent.style = "display: none";
+      labelContent.style = "display: block";
+    }
+  },
   initCanvas: function () {
     var canvas = $("#wheel #canvas").get(0);
     canvas.addEventListener("click", wheel.spin, false);
     wheel.canvasContext = canvas.getContext("2d");
+    wheel.checkValue();
   },
 
   initWheel: function () {
@@ -166,18 +187,6 @@ var wheel = {
 
     ctx.stroke();
     ctx.fill();
-    var i =
-      wheel.segments.length -
-      Math.floor((wheel.angleCurrent / (Math.PI * 2)) * wheel.segments.length) -
-      1;
-
-    // tên người chiến thắng
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#000000";
-    ctx.font = "2em Arial";
-    // ctx.fillText(wheel.segments[i], centerX + size + 25, centerY);
-    console.log(wheel.segments[i], centerX + size + 25, centerY);
   },
 
   drawSegment: function (key, lastAngle, angle) {
@@ -223,7 +232,7 @@ var wheel = {
 
     var PI2 = Math.PI * 2;
 
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     ctx.strokeStyle = "#000000";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
@@ -253,8 +262,57 @@ var wheel = {
     ctx.strokeStyle = "#000000";
     ctx.stroke();
   },
-};
+  showCongratulations: function () {
+    var i =
+      wheel.segments.length -
+      Math.floor((wheel.angleCurrent / (Math.PI * 2)) * wheel.segments.length) -
+      1;
+    var winnerName = names[i];
 
+    // Tạo popup chúc mừng
+    var popup = document.createElement("div");
+    popup.className = "popup";
+    popup.innerHTML = `
+          <h2>Chúc mừng!</h2>
+          <p>Bạn ${winnerName} đã chiến thắng!</p>
+          <button class="delete-button">Xóa</button>
+          <button class="close-button">Đóng</button>
+        `;
+
+    // Hiển thị popup
+    var body = document.querySelector("body");
+    body.appendChild(popup);
+
+    var deleteButton = popup.querySelector(".delete-button");
+    deleteButton.addEventListener("click", function () {
+      wheel.deleteWinner(i);
+      // wheel.closePopup();
+    });
+
+    // Lắng nghe sự kiện click cho nút đóng
+    var closeButton = popup.querySelector(".close-button");
+    closeButton.addEventListener("click", wheel.closePopup);
+  },
+  deleteWinner: function (index) {
+    names.splice(index, 1);
+    nameInput.value = [names.join("\n")];
+    wheel.closePopup();
+    wheel.update();
+    wheel.checkValue();
+  },
+  closePopup: function () {
+    var popup = document.querySelector(".popup");
+    if (popup) {
+      popup.parentNode.removeChild(popup);
+    }
+  },
+};
+document.addEventListener("click", function (event) {
+  var popup = document.querySelector(".popup");
+  if (popup && !popup.contains(event.target)) {
+    popup.parentNode.removeChild(popup);
+  }
+});
 var spectrum = [
   "#A2395B",
   "#A63552",
