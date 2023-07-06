@@ -1,7 +1,9 @@
 var names = [];
 var nameInput = document.getElementById("name"),
   canvasContent = document.querySelector(".content-wheel"),
-  labelContent = document.querySelector(".content-label");
+  labelContent = document.querySelector(".content-label"),
+  labelTextarea = document.querySelector(".label-textarea"),
+  showPopup = document.querySelector(".show-popup");
 
 var shuffle = function (o) {
   for (
@@ -50,14 +52,14 @@ var wheel = {
   angleCurrent: 0,
   angleDelta: 0,
   canvasContext: null,
-  centerX: 300,
-  centerY: 300,
+  centerX: 350,
+  centerY: 350,
   colorCache: [],
   downTime: 10000,
   frames: 0,
   maxSpeed: Math.PI / names.length,
   segments: [],
-  size: 290,
+  size: 340,
   spinStart: 0,
   timerDelay: 33,
   timerHandle: 0,
@@ -70,6 +72,7 @@ var wheel = {
       wheel.frames = 0;
       wheel.timerHandle = setInterval(wheel.onTimerTick, wheel.timerDelay);
       wheel.closePopup();
+      nameInput.disabled = true;
     }
   },
 
@@ -103,12 +106,9 @@ var wheel = {
       clearInterval(wheel.timerHandle);
       wheel.timerHandle = 0;
       wheel.angleDelta = 0;
-      console.log(
-        wheel.segments[i],
-        wheel.centerX + wheel.size + 25,
-        wheel.centerY
-      );
+
       wheel.showCongratulations();
+      nameInput.disabled = false;
     }
   },
 
@@ -165,7 +165,7 @@ var wheel = {
 
   clear: function () {
     var ctx = wheel.canvasContext;
-    ctx.clearRect(0, 0, 1000, 800);
+    ctx.clearRect(0, 0, 1000, 1000);
   },
 
   drawNeedle: function () {
@@ -175,12 +175,12 @@ var wheel = {
     var size = wheel.size;
 
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "#000000";
-    ctx.fileStyle = "#ffffff";
+    ctx.strokeStyle = "#4ab8ea";
+    ctx.fillStyle = "#4ab8ea";
 
     ctx.beginPath();
 
-    ctx.moveTo(centerX + size - 40, centerY);
+    ctx.moveTo(centerX + size - 20, centerY);
     ctx.lineTo(centerX + size + 20, centerY - 10);
     ctx.lineTo(centerX + size + 20, centerY + 10);
     ctx.closePath();
@@ -211,7 +211,7 @@ var wheel = {
     ctx.translate(centerX, centerY);
     ctx.rotate((lastAngle + angle) / 2);
 
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "white";
     ctx.fillText(value.substr(0, 20), size / 2 + 20, 0);
     ctx.restore();
 
@@ -232,7 +232,7 @@ var wheel = {
 
     var PI2 = Math.PI * 2;
 
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.strokeStyle = "#000000";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
@@ -245,7 +245,7 @@ var wheel = {
     }
     // Draw a center circle
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 20, 0, PI2, false);
+    ctx.arc(centerX, centerY, 30, 0, PI2, false);
     ctx.closePath();
 
     ctx.fillStyle = "#ffffff";
@@ -270,18 +270,28 @@ var wheel = {
     var winnerName = names[i];
 
     // Tạo popup chúc mừng
+    showCongratulationsPopup();
     var popup = document.createElement("div");
     popup.className = "popup";
     popup.innerHTML = `
-          <h2>Chúc mừng!</h2>
-          <p>Bạn ${winnerName} đã chiến thắng!</p>
-          <button class="delete-button">Xóa</button>
-          <button class="close-button">Đóng</button>
+    <!-- <div class="popup-close">
+    <p class="btn-close">X</p>
+   </div> -->
+          <div class="popup-content">
+            <div class="popup-icon">️🎊</div>
+            <h2 class ="popup-title">Chúc mừng!</h2>
+            <p class="popup-desc">Bạn <strong>${winnerName}</strong> đã chiến thắng!</p>
+            <div class ="popup-btn">
+              <button class="delete-button">Xóa</button>
+              <button class="close-button">Đóng</button>
+            </div>
+          </div>
         `;
 
     // Hiển thị popup
-    var body = document.querySelector("body");
-    body.appendChild(popup);
+    // var body = document.querySelector("body");
+    showPopup.classList.add("active");
+    showPopup.appendChild(popup);
 
     var deleteButton = popup.querySelector(".delete-button");
     deleteButton.addEventListener("click", function () {
@@ -289,9 +299,10 @@ var wheel = {
       // wheel.closePopup();
     });
 
-    // Lắng nghe sự kiện click cho nút đóng
     var closeButton = popup.querySelector(".close-button");
     closeButton.addEventListener("click", wheel.closePopup);
+    // var closeBtn = popup.querySelector(".btn-close");
+    // closeBtn.addEventListener("click", wheel.closePopup);
   },
   deleteWinner: function (index) {
     names.splice(index, 1);
@@ -304,6 +315,11 @@ var wheel = {
     var popup = document.querySelector(".popup");
     if (popup) {
       popup.parentNode.removeChild(popup);
+      showPopup.classList.remove("active");
+    }
+    var congratulation = document.querySelector(".background-congratulation");
+    if (congratulation) {
+      document.body.removeChild(congratulation);
     }
   },
 };
@@ -311,8 +327,14 @@ document.addEventListener("click", function (event) {
   var popup = document.querySelector(".popup");
   if (popup && !popup.contains(event.target)) {
     popup.parentNode.removeChild(popup);
+    showPopup.classList.remove("active");
+  }
+  var congratulation = document.querySelector(".background-congratulation");
+  if (congratulation && !congratulation.contains(event.target)) {
+    document.body.removeChild(congratulation);
   }
 });
+
 var spectrum = [
   "#A2395B",
   "#A63552",
@@ -504,3 +526,224 @@ var spectrum = [
   "#90AA3B",
   "#ACD62A",
 ];
+function showCongratulationsPopup() {
+  var random = Math.random,
+    cos = Math.cos,
+    sin = Math.sin,
+    PI = Math.PI,
+    PI2 = PI * 2,
+    timer = undefined,
+    frame = undefined,
+    confetti = [];
+
+  var spread = 4,
+    sizeMin = 3,
+    sizeMax = 12 - sizeMin,
+    eccentricity = 10,
+    deviation = 100,
+    dxThetaMin = -0.1,
+    dxThetaMax = -dxThetaMin - dxThetaMin,
+    dyMin = 0.13,
+    dyMax = 0.18,
+    dThetaMin = 0.4,
+    dThetaMax = 0.7 - dThetaMin;
+
+  var colorThemes = [
+    function () {
+      return color(
+        (200 * random()) | 0,
+        (200 * random()) | 0,
+        (200 * random()) | 0
+      );
+    },
+    function () {
+      var black = (200 * random()) | 0;
+      return color(200, black, black);
+    },
+    function () {
+      var black = (200 * random()) | 0;
+      return color(black, 200, black);
+    },
+    function () {
+      var black = (200 * random()) | 0;
+      return color(black, black, 200);
+    },
+    function () {
+      return color(200, 100, (200 * random()) | 0);
+    },
+    function () {
+      return color((200 * random()) | 0, 200, 200);
+    },
+    function () {
+      var black = (256 * random()) | 0;
+      return color(black, black, black);
+    },
+    function () {
+      return colorThemes[random() < 0.5 ? 1 : 2]();
+    },
+    function () {
+      return colorThemes[random() < 0.5 ? 3 : 5]();
+    },
+    function () {
+      return colorThemes[random() < 0.5 ? 2 : 4]();
+    },
+  ];
+  function color(r, g, b) {
+    return "rgb(" + r + "," + g + "," + b + ")";
+  }
+
+  // Cosine interpolation
+  function interpolation(a, b, t) {
+    return ((1 - cos(PI * t)) / 2) * (b - a) + a;
+  }
+
+  var radius = 1 / eccentricity,
+    radius2 = radius + radius;
+  function createPoisson() {
+    var domain = [radius, 1 - radius],
+      measure = 1 - radius2,
+      spline = [0, 1];
+    while (measure) {
+      var dart = measure * random(),
+        i,
+        l,
+        interval,
+        a,
+        b,
+        c,
+        d;
+
+      // Find where dart lies
+      for (i = 0, l = domain.length, measure = 0; i < l; i += 2) {
+        (a = domain[i]), (b = domain[i + 1]), (interval = b - a);
+        if (dart < measure + interval) {
+          spline.push((dart += a - measure));
+          break;
+        }
+        measure += interval;
+      }
+      (c = dart - radius), (d = dart + radius);
+
+      for (i = domain.length - 1; i > 0; i -= 2) {
+        (l = i - 1), (a = domain[l]), (b = domain[i]);
+        if (a >= c && a < d)
+          if (b > d) domain[l] = d;
+          else domain.splice(l, 2);
+        else if (a < c && b > c)
+          if (b <= d) domain[i] = c;
+          else domain.splice(i, 0, c, d);
+      }
+
+      for (i = 0, l = domain.length, measure = 0; i < l; i += 2)
+        measure += domain[i + 1] - domain[i];
+    }
+
+    return spline.sort();
+  }
+
+  var container = document.createElement("div");
+  container.style.position = "fixed";
+  container.style.top = "0";
+  container.style.left = "0";
+  container.style.width = "100%";
+  container.style.height = "0";
+  container.style.overflow = "visible";
+  container.style.zIndex = "9999";
+  container.className = "background-congratulation";
+  function Confetto(theme) {
+    this.frame = 0;
+    this.outer = document.createElement("div");
+    this.inner = document.createElement("div");
+    this.outer.appendChild(this.inner);
+
+    var outerStyle = this.outer.style,
+      innerStyle = this.inner.style;
+    outerStyle.position = "absolute";
+    outerStyle.width = sizeMin + sizeMax * random() + "px";
+    outerStyle.height = sizeMin + sizeMax * random() + "px";
+    innerStyle.width = "100%";
+    innerStyle.height = "100%";
+    innerStyle.backgroundColor = theme();
+
+    outerStyle.perspective = "50px";
+    outerStyle.transform = "rotate(" + 360 * random() + "deg)";
+    this.axis =
+      "rotate3D(" + cos(360 * random()) + "," + cos(360 * random()) + ",0,";
+    this.theta = 360 * random();
+    this.dTheta = dThetaMin + dThetaMax * random();
+    innerStyle.transform = this.axis + this.theta + "deg)";
+
+    this.x = window.innerWidth * random();
+    this.y = -deviation;
+    this.dx = sin(dxThetaMin + dxThetaMax * random());
+    this.dy = dyMin + dyMax * random();
+    outerStyle.left = this.x + "px";
+    outerStyle.top = this.y + "px";
+
+    this.splineX = createPoisson();
+    this.splineY = [];
+    for (var i = 1, l = this.splineX.length - 1; i < l; ++i)
+      this.splineY[i] = deviation * random();
+    this.splineY[0] = this.splineY[l] = deviation * random();
+
+    this.update = function (height, delta) {
+      this.frame += delta;
+      this.x += this.dx * delta;
+      this.y += this.dy * delta;
+      this.theta += this.dTheta * delta;
+
+      var phi = (this.frame % 7777) / 7777,
+        i = 0,
+        j = 1;
+      while (phi >= this.splineX[j]) i = j++;
+      var rho = interpolation(
+        this.splineY[i],
+        this.splineY[j],
+        (phi - this.splineX[i]) / (this.splineX[j] - this.splineX[i])
+      );
+      phi *= PI2;
+
+      outerStyle.left = this.x + rho * cos(phi) + "px";
+      outerStyle.top = this.y + rho * sin(phi) + "px";
+      innerStyle.transform = this.axis + this.theta + "deg)";
+      return this.y > height + deviation;
+    };
+  }
+
+  function poof() {
+    if (!frame) {
+      document.body.appendChild(container);
+
+      var theme = colorThemes[0],
+        count = 0;
+      (function addConfetto() {
+        var confetto = new Confetto(theme);
+        confetti.push(confetto);
+        container.appendChild(confetto.outer);
+        timer = setTimeout(addConfetto, spread * random());
+      })(0);
+
+      var prev = undefined;
+      requestAnimationFrame(function loop(timestamp) {
+        var delta = prev ? timestamp - prev : 0;
+        prev = timestamp;
+        var height = window.innerHeight;
+
+        for (var i = confetti.length - 1; i >= 0; --i) {
+          if (confetti[i].update(height, delta)) {
+            container.removeChild(confetti[i].outer);
+            confetti.splice(i, 1);
+          }
+        }
+
+        if (timer || confetti.length)
+          return (frame = requestAnimationFrame(loop));
+
+        document.body.removeChild(container);
+        frame = undefined;
+      });
+    }
+  }
+
+  poof();
+}
