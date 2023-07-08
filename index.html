@@ -36,10 +36,10 @@
     <div class="container">
       <div class="wrapper">
         <div class="container-left">
-          <label class="content-label" style="display: block"
+          <label class="content-label" style="display: none"
             >Chưa có người tham gia</label
           >
-          <div id="wheel" class="content-wheel" style="display: none">
+          <div id="wheel" class="content-wheel">
             <canvas
               id="canvas"
               width="750"
@@ -56,11 +56,41 @@
               <li>Nhấn vào vòng quay để bắt đầu trò chơi</li>
             </ul>
           </div>
+          <div class="container-right--middle">
+            <div class="container-timer--spin">
+              <select name="" id="" class="select-timer">
+                <option>- Chọn thời gian quay -</option>
+                <option value="5">5 giây</option>
+                <option value="10">10 giây</option>
+                <option value="15">15 giây</option>
+                <option value="20">20 giây</option>
+                <option value="25">25 giây</option>
+                <option value="30">30 giây</option>
+              </select>
+            </div>
+            <div class="container-action">
+              <div class="container-spin--list">
+                <div class="spin-btn btn-action">Bắt đầu quay</div>
+              </div>
+              <div class="container-sort--list">
+                <div class="sort-btn btn-action">Sắp xếp</div>
+              </div>
+              <div class="container-delete--list">
+                <div class="btn-delete btn-action">Xóa danh sách</div>
+              </div>
+            </div>
+          </div>
           <div class="container-right--bottom">
             <label for="name" class="label-textarea"
               >Nhập tên và nhấn ENTER để thêm tên người chơi</label
             >
-            <textarea name="" id="name" class="textarea-content"></textarea>
+            <textarea name="" id="name" class="textarea-content">
+Nguyễn Văn A
+Lê Văn B
+Trần Văn C
+Đặng Thị D
+Dương Thị E</textarea
+            >
           </div>
         </div>
       </div>

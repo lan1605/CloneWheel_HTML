@@ -1,9 +1,18 @@
 var names = [];
+var demos = [
+  "Nguyễn Văn A",
+  "Lê Văn B",
+  "Trần Văn C",
+  "Đặng Thị D",
+  "Dương Thị E",
+];
 var nameInput = document.getElementById("name"),
   canvasContent = document.querySelector(".content-wheel"),
   labelContent = document.querySelector(".content-label"),
   labelTextarea = document.querySelector(".label-textarea"),
-  showPopup = document.querySelector(".show-popup");
+  showPopup = document.querySelector(".show-popup"),
+  selectTime = document.querySelector(".select-timer"),
+  spinBtn = document.querySelector(".spin-btn");
 var audioSpin = new Audio("./assets/sound/wheel.mp3"),
   autoCongratulation = new Audio("./assets/sound/congratulation.mp3");
 var shuffle = function (o) {
@@ -29,6 +38,7 @@ var mod = function (a, b) {
   return ((a % b) + b) % b;
 };
 $(function () {
+  wheel.segments = demos;
   nameInput.addEventListener("input", function () {
     var namesEntered = this.value
       .replace(/\r\n/g, "\n")
@@ -47,8 +57,13 @@ $(function () {
       window.scrollTo(0, 1);
     }, 0);
   });
+  wheel.init();
+  wheel.update();
+  setTimeout(function () {
+    window.scrollTo(0, 1);
+  }, 0);
 });
-
+spinBtn.addEventListener("click", function () {});
 var wheel = {
   angleCurrent: 0,
   angleDelta: 0,
@@ -64,7 +79,7 @@ var wheel = {
   spinStart: 0,
   timerDelay: 33,
   timerHandle: 0,
-  upTime: 5000,
+  upTime: 1000, //thời gian quay
 
   spin: function () {
     if (wheel.timerHandle == 0) {
@@ -136,9 +151,9 @@ var wheel = {
   },
   initCanvas: function () {
     var canvas = $("#wheel #canvas").get(0);
-    canvas.addEventListener("click", wheel.spin, false);
+    // canvas.addEventListener("click", wheel.spin, false);
     wheel.canvasContext = canvas.getContext("2d");
-    wheel.checkValue();
+    // wheel.checkValue();
   },
 
   initWheel: function () {
@@ -272,46 +287,56 @@ var wheel = {
       wheel.segments.length -
       Math.floor((wheel.angleCurrent / (Math.PI * 2)) * wheel.segments.length) -
       1;
-    var winnerName = names[i];
-
+    if (names.length === 0) {
+      var winnerDemo = demos[i];
+      wheel.showPopupContent(winnerDemo);
+      var deleteButton = document.querySelector(".delete-button");
+      deleteButton.addEventListener("click", function () {
+        wheel.deleteWinner(demos, i);
+        // wheel.closePopup();
+      });
+    } else {
+      var winnerName = names[i];
+      wheel.showPopupContent(winnerName);
+      var deleteButton = document.querySelector(".delete-button");
+      deleteButton.addEventListener("click", function () {
+        wheel.deleteWinner(names, i);
+        // wheel.closePopup();
+      });
+    }
+  },
+  showPopupContent: function (text) {
     // Tạo popup chúc mừng
     showCongratulationsPopup();
     var popup = document.createElement("div");
     popup.className = "popup";
     popup.innerHTML = `
-    <!-- <div class="popup-close">
-    <p class="btn-close">X</p>
-   </div> -->
-          <div class="popup-content">
-            <div class="popup-icon">️🎊</div>
-            <h2 class ="popup-title">Chúc mừng!</h2>
-            <p class="popup-desc">Bạn <strong>${winnerName}</strong> đã chiến thắng!</p>
-            <div class ="popup-btn">
-              <button class="delete-button">Xóa tên</button>
-              <button class="close-button">Đóng</button>
-            </div>
+  <!-- <div class="popup-close">
+  <p class="btn-close">X</p>
+ </div> -->
+        <div class="popup-content">
+          <div class="popup-icon">️🎊</div>
+          <h2 class ="popup-title">Chúc mừng!</h2>
+          <p class="popup-desc">Bạn <strong>${text}</strong> đã chiến thắng!</p>
+          <div class ="popup-btn">
+            <button class="delete-button">Xóa tên</button>
+            <button class="close-button">Đóng</button>
           </div>
-        `;
-
+        </div>
+      `;
     // Hiển thị popup
     // var body = document.querySelector("body");
     showPopup.classList.add("active");
     showPopup.appendChild(popup);
-
-    var deleteButton = popup.querySelector(".delete-button");
-    deleteButton.addEventListener("click", function () {
-      wheel.deleteWinner(i);
-      // wheel.closePopup();
-    });
 
     var closeButton = popup.querySelector(".close-button");
     closeButton.addEventListener("click", wheel.closePopup);
     // var closeBtn = popup.querySelector(".btn-close");
     // closeBtn.addEventListener("click", wheel.closePopup);
   },
-  deleteWinner: function (index) {
-    names.splice(index, 1);
-    nameInput.value = [names.join("\n")];
+  deleteWinner: function (arr, index) {
+    arr.splice(index, 1);
+    nameInput.value = [arr.join("\n")];
     wheel.closePopup();
     wheel.update();
     wheel.checkValue();

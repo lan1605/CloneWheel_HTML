@@ -162,14 +162,71 @@
 }
 .container-use {
   padding: 25px;
-  /* width: 100%; */
   border: 1px solid lightgray;
   border-radius: 10px;
-  margin-bottom: 50px;
   font-size: 18px;
 }
 .textarea-content:disabled {
   background-color: white;
+}
+.container-right--middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 40px 0;
+  flex-wrap: wrap;
+  flex-direction: column;
+  font-size: 18px;
+}
+.container-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 50px;
+  margin: 20px 0;
+}
+.container-spin--list,
+.container-sort--list,
+.container-delete--list {
+  width: calc(100% / 4);
+}
+.container-timer--spin {
+  width: 100%;
+}
+.select-timer {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 18px;
+  border: 1px solid lightgray;
+  border-radius: 10px;
+}
+.select-timer:focus {
+  outline: none;
+}
+.btn-action {
+  width: 100%;
+  padding: 15px 20px;
+  /* border: 1px solid lightgray; */
+  text-align: center;
+  cursor: pointer;
+  border-radius: 10px;
+  background-size: 200% auto;
+  transition: 0.5s;
+}
+.spin-btn {
+  background-image: linear-gradient(
+    to right,
+    #f6d365 0%,
+    #fda085 51%,
+    #f6d365 100%
+  );
+  color: white;
+  font-weight: bold;
+}
+.spin-btn:hover {
+  background-position: right center;
 }
 @media screen and (max-width: 1024px) {
   .container-left {
