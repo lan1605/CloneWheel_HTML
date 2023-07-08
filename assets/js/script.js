@@ -4,7 +4,8 @@ var nameInput = document.getElementById("name"),
   labelContent = document.querySelector(".content-label"),
   labelTextarea = document.querySelector(".label-textarea"),
   showPopup = document.querySelector(".show-popup");
-
+var audioSpin = new Audio("./assets/sound/wheel.mp3"),
+  autoCongratulation = new Audio("./assets/sound/congratulation.mp3");
 var shuffle = function (o) {
   for (
     var j, x, i = o.length;
@@ -73,6 +74,7 @@ var wheel = {
       wheel.timerHandle = setInterval(wheel.onTimerTick, wheel.timerDelay);
       wheel.closePopup();
       nameInput.disabled = true;
+      audioSpin.play();
     }
   },
 
@@ -109,6 +111,9 @@ var wheel = {
 
       wheel.showCongratulations();
       nameInput.disabled = false;
+      audioSpin.pause();
+      audioSpin.currentTime = 0;
+      autoCongratulation.play();
     }
   },
 
@@ -282,7 +287,7 @@ var wheel = {
             <h2 class ="popup-title">Chúc mừng!</h2>
             <p class="popup-desc">Bạn <strong>${winnerName}</strong> đã chiến thắng!</p>
             <div class ="popup-btn">
-              <button class="delete-button">Xóa</button>
+              <button class="delete-button">Xóa tên</button>
               <button class="close-button">Đóng</button>
             </div>
           </div>
