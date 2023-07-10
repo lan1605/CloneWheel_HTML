@@ -1,20 +1,22 @@
 var names = [];
-var demos = [
-  "Nguyễn Văn A",
-  "Lê Văn B",
-  "Trần Văn C",
-  "Đặng Thị D",
-  "Dương Thị E",
-];
+let demos = !localStorage.getItem("content")
+  ? ["Nguyễn Văn A", "Lê Văn B", "Trần Văn C", "Đặng Thị D", "Dương Thị E"]
+  : localStorage.getItem("content").split(",");
 var nameInput = document.getElementById("name"),
   canvasContent = document.querySelector(".content-wheel"),
   labelContent = document.querySelector(".content-label"),
   labelTextarea = document.querySelector(".label-textarea"),
   showPopup = document.querySelector(".show-popup"),
   selectTime = document.querySelector(".select-timer"),
-  spinBtn = document.querySelector(".spin-btn");
+  spinBtn = document.querySelector(".spin-btn"),
+  deleteList = document.querySelector(".btn-delete"),
+  sortBtn = document.querySelector(".sort-random--btn"),
+  btnActionList = document.querySelectorAll(".btn-action");
+var spinTimer = 0;
+
 var audioSpin = new Audio("./assets/sound/wheel.mp3"),
   autoCongratulation = new Audio("./assets/sound/congratulation.mp3");
+
 var shuffle = function (o) {
   for (
     var j, x, i = o.length;
@@ -50,20 +52,49 @@ $(function () {
       canvasContent.style = "display: block";
       labelContent.style = "display: none";
       wheel.segments = names;
+      localStorage.setItem("content", names);
     }
+
     wheel.init();
     wheel.update();
     setTimeout(function () {
       window.scrollTo(0, 1);
     }, 0);
   });
+  !localStorage.getItem("content") ? "" : (nameInput.value = demos.join("\n"));
   wheel.init();
   wheel.update();
   setTimeout(function () {
     window.scrollTo(0, 1);
   }, 0);
+  wheel.deleteAll();
 });
-spinBtn.addEventListener("click", function () {});
+sortBtn.addEventListener("click", function () {
+  if (names.length === 0) {
+    demos = demos.sort((a, b) => 0.5 - Math.random());
+    nameInput.value = [demos.join("\n")];
+    localStorage.setItem("content", demos);
+    wheel.init();
+    wheel.update();
+  } else {
+    names = names.sort((a, b) => 0.5 - Math.random());
+    nameInput.value = [names.join("\n")];
+    localStorage.setItem("content", names);
+    wheel.init();
+    wheel.update();
+  }
+});
+selectTime.addEventListener("change", function () {
+  wheel.upTime = selectTime.value * 1000;
+  if (selectTime.value == 0) {
+    spinBtn.style = `cursor: not-allowed;
+    pointer-events: none;
+    background: gray;`;
+  } else {
+    spinBtn.style = "";
+  }
+});
+
 var wheel = {
   angleCurrent: 0,
   angleDelta: 0,
@@ -77,22 +108,28 @@ var wheel = {
   segments: [],
   size: 340,
   spinStart: 0,
-  timerDelay: 33,
+  timerDelay: 25,
   timerHandle: 0,
-  upTime: 1000, //thời gian quay
+  upTime: 0, //thời gian quay
 
+  //quay
   spin: function () {
     if (wheel.timerHandle == 0) {
       wheel.spinStart = new Date().getTime();
-      wheel.maxSpeed = Math.PI / (16 + Math.random() * 10);
+      wheel.maxSpeed = Math.PI / (20 + Math.random() * 10);
       wheel.frames = 0;
       wheel.timerHandle = setInterval(wheel.onTimerTick, wheel.timerDelay);
       wheel.closePopup();
       nameInput.disabled = true;
       audioSpin.play();
+      selectTime.disabled = true;
+      btnActionList.forEach((item) => {
+        item.style = "pointer-events: none";
+      });
     }
   },
 
+  //tiến trình quay
   onTimerTick: function () {
     wheel.frames++;
     wheel.draw();
@@ -129,9 +166,32 @@ var wheel = {
       audioSpin.pause();
       audioSpin.currentTime = 0;
       autoCongratulation.play();
+      selectTime.disabled = false;
+      btnActionList.forEach((item) => {
+        item.style = "";
+      });
     }
   },
 
+  //xóa toàn bộ danh sách
+  deleteAll: function () {
+    deleteList.addEventListener("click", function () {
+      localStorage.removeItem("content");
+      if (names.length === 0) {
+        demos = [];
+        nameInput.value = [""];
+        wheel.init();
+        wheel.update();
+      } else {
+        names = [];
+        nameInput.value = [""];
+        wheel.init();
+        wheel.update();
+      }
+    });
+  },
+
+  //khởi tạo vòng quay
   init: function () {
     try {
       wheel.initWheel();
@@ -143,19 +203,26 @@ var wheel = {
     }
   },
 
+  //kiểm tra trong textarea có giá trị hay không
   checkValue: function () {
     if (nameInput.value === "") {
       canvasContent.style = "display: none";
       labelContent.style = "display: block";
     }
   },
+
+  //tạo vòng quay
   initCanvas: function () {
     var canvas = $("#wheel #canvas").get(0);
     // canvas.addEventListener("click", wheel.spin, false);
+
+    spinBtn.addEventListener("click", wheel.spin, false);
+
     wheel.canvasContext = canvas.getContext("2d");
     // wheel.checkValue();
   },
 
+  //lấy mã màu ngẫu nhiên
   initWheel: function () {
     shuffle(spectrum);
   },
@@ -337,8 +404,9 @@ var wheel = {
   deleteWinner: function (arr, index) {
     arr.splice(index, 1);
     nameInput.value = [arr.join("\n")];
-    wheel.closePopup();
+    localStorage.setItem("content", arr);
     wheel.update();
+    wheel.closePopup();
     wheel.checkValue();
   },
   closePopup: function () {

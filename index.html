@@ -53,13 +53,14 @@
             <label class="container-use--label">Hướng dẫn chơi</label>
             <ul class="container-use">
               <li>Nhập tên các người chơi</li>
-              <li>Nhấn vào vòng quay để bắt đầu trò chơi</li>
+              <li>Chọn thời gian để quay vòng quay</li>
+              <li>Nhấn vào nút "Bắt đầu quay"</li>
             </ul>
           </div>
           <div class="container-right--middle">
             <div class="container-timer--spin">
               <select name="" id="" class="select-timer">
-                <option>- Chọn thời gian quay -</option>
+                <option value="0">- Chọn thời gian quay -</option>
                 <option value="5">5 giây</option>
                 <option value="10">10 giây</option>
                 <option value="15">15 giây</option>
@@ -70,11 +71,37 @@
             </div>
             <div class="container-action">
               <div class="container-spin--list">
-                <div class="spin-btn btn-action">Bắt đầu quay</div>
+                <div
+                  class="spin-btn btn-action"
+                  style="
+                    cursor: not-allowed;
+                    pointer-events: none;
+                    background: gray;
+                  "
+                >
+                  Bắt đầu quay
+                </div>
               </div>
               <div class="container-sort--list">
-                <div class="sort-btn btn-action">Sắp xếp</div>
+                <div class="sort-random--btn btn-action sort-btn">
+                  <span class="btn-desc">Ngẫu nhiên</span>
+                  <img
+                    src="./assets/images/sort-random.png"
+                    alt=""
+                    class="btn-sort--img"
+                  />
+                </div>
               </div>
+              <!-- <div class="container-sort--list">
+                <div class="sort-alphabet--btn btn-action sort-btn">
+                  <span class="btn-desc">Sắp xếp</span>
+                  <img
+                    src="./assets/images/sort-alphabetical.png"
+                    alt=""
+                    class="btn-sort--img"
+                  />
+                </div>
+              </div> -->
               <div class="container-delete--list">
                 <div class="btn-delete btn-action">Xóa danh sách</div>
               </div>
