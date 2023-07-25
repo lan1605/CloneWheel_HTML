@@ -110,7 +110,7 @@ var wheel = {
   spinStart: 0,
   timerDelay: 25,
   timerHandle: 0,
-  upTime: 0, //thời gian quay
+  upTime: 10000, //thời gian quay
 
   //quay
   spin: function () {
